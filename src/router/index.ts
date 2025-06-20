@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
+import { useUserStore } from "@/store/user";
 
 const routes: RouteRecordRaw[] = [
     {
@@ -8,7 +9,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import("@/views/Home.vue"),
         meta: {
             title: "首页",
-            requiresAuth: false,
+            requiresAuth: true,
         },
     },
     {
@@ -36,13 +37,47 @@ const router = createRouter({
     routes,
 });
 
+// 白名单路径，不需要登录就可以访问
+const whiteList = ["/login"];
+
 // 全局前置守卫
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
     // 设置页面标题
     document.title = (to.meta.title as string) || "移动端管理后台";
 
-    // 这里可以添加登录验证等逻辑
-    next();
+    const userStore = useUserStore();
+
+    // 判断是否需要登录
+    if (userStore.isLogin) {
+        // 已登录状态
+        if (to.path === "/login") {
+            // 如果已登录，访问登录页则重定向到首页
+            next({ path: "/" });
+        } else {
+            // 如果没有用户信息，先获取用户信息
+            if (!userStore.userInfo) {
+                try {
+                    await userStore.getInfo();
+                    next();
+                } catch (error) {
+                    // 获取用户信息失败，可能是token过期，需要重新登录
+                    userStore.resetState();
+                    next(`/login?redirect=${to.path}`);
+                }
+            } else {
+                next();
+            }
+        }
+    } else {
+        // 未登录状态
+        if (whiteList.includes(to.path)) {
+            // 在免登录白名单中，直接进入
+            next();
+        } else {
+            // 其他需要登录的页面，重定向到登录页
+            next(`/login?redirect=${to.path}`);
+        }
+    }
 });
 
 export default router;
