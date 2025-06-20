@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
 import { useUserStore } from "@/store/user";
 
 const router = useRouter();
@@ -57,14 +55,24 @@ const handleThirdPartyLogin = (type: string) => {
 const handlePhoneLogin = () => {
     alert("手机号登录功能开发中...");
 };
+
+// 跳转到注册页面
+const goToRegister = () => {
+    router.push("/register");
+};
+
+// 跳转到忘记密码页面
+const goToForgotPassword = () => {
+    router.push("/forgot-password");
+};
 </script>
 
 <template>
     <div class="login-page">
         <!-- Logo和标题 -->
         <div class="logo-container">
-            <img src="@/assets/logo.svg" alt="波点音乐" class="logo" />
-            <h1 class="app-name">波点音乐</h1>
+            <img src="@/assets/vue.svg" alt="平台" class="logo" />
+            <h1 class="app-name">平台</h1>
         </div>
 
         <!-- 登录表单 -->
@@ -76,6 +84,10 @@ const handlePhoneLogin = () => {
                 </div>
                 <div class="form-item">
                     <input v-model="password" type="password" placeholder="请输入密码" />
+                </div>
+                <div class="form-options">
+                    <span class="register-link" @click="goToRegister">注册账号</span>
+                    <span class="forgot-password-link" @click="goToForgotPassword">忘记密码？</span>
                 </div>
                 <button class="login-button" @click="handleLogin" :disabled="loading">
                     {{ loading ? "登录中..." : "登录" }}
@@ -160,6 +172,19 @@ const handlePhoneLogin = () => {
 
 .form-item {
     margin-bottom: 15px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.register-link,
+.forgot-password-link {
+    color: #07c160;
+    cursor: pointer;
 }
 
 input {

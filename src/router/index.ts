@@ -22,6 +22,24 @@ const routes: RouteRecordRaw[] = [
         },
     },
     {
+        path: "/register",
+        name: "Register",
+        component: () => import("@/views/Register.vue"),
+        meta: {
+            title: "注册",
+            requiresAuth: false,
+        },
+    },
+    {
+        path: "/forgot-password",
+        name: "ForgotPassword",
+        component: () => import("@/views/ForgotPassword.vue"),
+        meta: {
+            title: "忘记密码",
+            requiresAuth: false,
+        },
+    },
+    {
         path: "/:pathMatch(.*)*",
         name: "NotFound",
         component: () => import("@/views/NotFound.vue"),
@@ -38,7 +56,7 @@ const router = createRouter({
 });
 
 // 白名单路径，不需要登录就可以访问
-const whiteList = ["/login"];
+const whiteList = ["/login", "/register", "/forgot-password"];
 
 // 全局前置守卫
 router.beforeEach(async (to, _from, next) => {
@@ -50,8 +68,8 @@ router.beforeEach(async (to, _from, next) => {
     // 判断是否需要登录
     if (userStore.isLogin) {
         // 已登录状态
-        if (to.path === "/login") {
-            // 如果已登录，访问登录页则重定向到首页
+        if (to.path === "/login" || to.path === "/register" || to.path === "/forgot-password") {
+            // 如果已登录，访问登录、注册或忘记密码页面则重定向到首页
             next({ path: "/" });
         } else {
             // 如果没有用户信息，先获取用户信息
