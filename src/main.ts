@@ -3,8 +3,12 @@ import router from "./router";
 import pinia from "./store";
 import "./styles/reset.css";
 import App from "./App.vue";
+import { setupSvgIcon } from "./utils/svgIcon";
 
 const app = createApp(App);
+
+// 注册SVG图标
+setupSvgIcon(app);
 
 app.use(pinia);
 app.use(router);
