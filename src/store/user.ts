@@ -2,14 +2,12 @@ import { defineStore } from "pinia";
 import {
     getToken,
     setToken,
-    removeToken,
     getUserInfo as getStorageUserInfo,
     setUserInfo as setStorageUserInfo,
     clearAuth,
 } from "@/utils/auth";
 import { login as loginApi, getUserInfo as getUserInfoApi, logout as logoutApi } from "@/api/auth";
 import type { LoginParams } from "@/api/auth";
-import { useRouter } from "vue-router";
 
 export const useUserStore = defineStore("user", {
     state: () => ({
