@@ -12,13 +12,13 @@ interface ImportMetaEnv {
     readonly VITE_BACKEND_URL: string;
     readonly VITE_APP_TITLE: string;
     readonly VITE_API_TIMEOUT: string;
-    readonly VITE_API_ENCRYPT?: boolean;
-    readonly VITE_USE_MOCK?: boolean;
-    readonly VITE_USE_DEBUGGER?: boolean;
-    readonly VITE_CONSOLE_REQUEST_LOG?: boolean;
+    readonly VITE_API_ENCRYPT?: string;
+    readonly VITE_USE_MOCK?: string;
+    readonly VITE_USE_DEBUGGER?: string;
+    readonly VITE_CONSOLE_REQUEST_LOG?: string;
     readonly VITE_CDN_URL?: string;
-    readonly VITE_BUILD_GZIP?: boolean;
-    readonly VITE_DROP_CONSOLE?: boolean;
+    readonly VITE_BUILD_GZIP?: string;
+    readonly VITE_DROP_CONSOLE?: string;
     // 更多环境变量...
 }
 

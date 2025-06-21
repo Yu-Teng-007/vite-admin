@@ -15,11 +15,10 @@ export const API_CONFIG = {
     timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
 
     // 是否启用 Mock 数据
-    useMock: import.meta.env.VITE_USE_MOCK === "true" || import.meta.env.VITE_USE_MOCK === true,
+    useMock: import.meta.env.VITE_USE_MOCK === "true",
 
     // 是否显示请求日志
-    showRequestLog:
-        import.meta.env.VITE_CONSOLE_REQUEST_LOG === "true" || import.meta.env.VITE_CONSOLE_REQUEST_LOG === true,
+    showRequestLog: import.meta.env.VITE_CONSOLE_REQUEST_LOG === "true",
 };
 
 // API 端点配置

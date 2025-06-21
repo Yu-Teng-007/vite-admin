@@ -21,7 +21,7 @@ export default defineConfig({
         },
     },
     server: {
-        port: 5173,
+        port: 6000,
         host: true,
         proxy: {
             // 代理 API 请求到后端服务，排除前端路由
@@ -29,7 +29,7 @@ export default defineConfig({
                 target: "http://localhost:3000",
                 changeOrigin: true,
                 secure: false,
-                bypass(req, res, options) {
+                bypass(req, _res, _options) {
                     // 如果是前端路由（如 /api-test），则不代理
                     if (req.url?.startsWith("/api-test") || req.url?.startsWith("/api-")) {
                         return req.url;
