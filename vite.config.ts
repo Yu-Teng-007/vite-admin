@@ -21,7 +21,7 @@ export default defineConfig({
         },
     },
     server: {
-        port: 6000,
+        port: 4800,
         host: true,
         proxy: {
             // 代理 API 请求到后端服务，排除前端路由
