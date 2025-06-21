@@ -1,21 +1,89 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { getExpressList } from "@/api/express";
+import { getPromoCards, getNotifications } from "@/api/promotion";
+import { getUserProfile } from "@/api/user";
+import type { ExpressInfo } from "@/api/express";
+import type { PromoCard, Notification } from "@/api/promotion";
+import type { UserProfile } from "@/api/user";
 
-// 模拟数据
-const packageInfo = ref({
-    trackingNumber: "SF1314064814581",
-    status: "运送中",
-    from: {
-        city: "南京市",
-        name: "智汇",
-    },
-    to: {
-        city: "南京市",
-        name: "李书章",
-    },
-});
-
+// 响应式数据
+const packageInfo = ref<ExpressInfo | null>(null);
+const promoCards = ref<PromoCard[]>([]);
+const notifications = ref<Notification[]>([]);
+const userInfo = ref<UserProfile | null>(null);
 const searchQuery = ref("");
+const loading = ref(false);
+
+// 获取快递信息
+const fetchExpressInfo = async () => {
+    try {
+        const result = await getExpressList();
+        if (result.list && result.list.length > 0) {
+            // 取第一个快递作为展示
+            packageInfo.value = result.list[0];
+        }
+    } catch (error) {
+        console.error("获取快递信息失败:", error);
+    }
+};
+
+// 获取促销卡片
+const fetchPromoCards = async () => {
+    try {
+        const cards = await getPromoCards();
+        promoCards.value = cards.slice(0, 4); // 只取前4个
+    } catch (error) {
+        console.error("获取促销卡片失败:", error);
+    }
+};
+
+// 获取通知消息
+const fetchNotifications = async () => {
+    try {
+        const result = await getNotifications({ page: 1, pageSize: 1 });
+        if (result.list && result.list.length > 0) {
+            notifications.value = result.list;
+        }
+    } catch (error) {
+        console.error("获取通知消息失败:", error);
+    }
+};
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+    try {
+        const user = await getUserProfile();
+        userInfo.value = user;
+    } catch (error) {
+        console.error("获取用户信息失败:", error);
+    }
+};
+
+// 搜索快递
+const handleSearch = async () => {
+    if (!searchQuery.value.trim()) {
+        alert("请输入运单号");
+        return;
+    }
+
+    loading.value = true;
+    try {
+        // 这里可以调用查询接口
+        console.log("搜索运单号:", searchQuery.value);
+        alert("搜索功能开发中...");
+    } catch (error) {
+        console.error("搜索失败:", error);
+        alert("搜索失败，请稍后再试");
+    } finally {
+        loading.value = false;
+    }
+};
+
+// 页面加载时获取数据
+onMounted(async () => {
+    await Promise.all([fetchExpressInfo(), fetchPromoCards(), fetchNotifications(), fetchUserInfo()]);
+});
 </script>
 
 <template>
@@ -38,16 +106,23 @@ const searchQuery = ref("");
                 </div>
                 <div class="profile">
                     <div class="avatar">
-                        <svg-icon name="user" color="#fff" :size="20" />
+                        <img v-if="userInfo?.avatar" :src="userInfo.avatar" alt="头像" />
+                        <svg-icon v-else name="user" color="#fff" :size="20" />
                     </div>
-                    <div class="user-tag">黄金</div>
+                    <div class="user-tag">{{ userInfo?.memberLevel?.name || "普通" }}</div>
                 </div>
             </div>
 
             <!-- 搜索框 -->
-            <div class="search-bar">
+            <div class="search-bar" @click="handleSearch">
                 <svg-icon name="search" color="#fff" :size="18" />
-                <input type="text" v-model="searchQuery" placeholder="输入运单号查询" />
+                <input
+                    type="text"
+                    v-model="searchQuery"
+                    placeholder="输入运单号查询"
+                    @keyup.enter="handleSearch"
+                    :disabled="loading"
+                />
             </div>
         </div>
 
@@ -152,39 +227,29 @@ const searchQuery = ref("");
         </div>
 
         <!-- 通知栏 -->
-        <div class="notification">
-            <div class="notification-icon">消息通知</div>
-            <div class="notification-text">快件即将到达&lt;南京市&gt;，您可以点...</div>
+        <div v-if="notifications.length > 0" class="notification">
+            <div class="notification-icon">{{ notifications[0].type.name }}</div>
+            <div class="notification-text">{{ notifications[0].content }}</div>
             <div class="notification-close">×</div>
         </div>
 
         <!-- 促销区域 -->
         <div class="promo-area">
-            <div class="promo-card large">
-                <div class="promo-title">水果免费领</div>
-                <div class="promo-subtitle">红包享不停</div>
-                <button class="promo-button">立即领取</button>
-                <div class="promo-image fruit"></div>
-            </div>
-            <div class="promo-card small">
-                <div class="promo-title">周末免费寄件日</div>
-                <div class="promo-subtitle">最高免23元</div>
-                <div class="promo-image weekend"></div>
-            </div>
-            <div class="promo-card small">
-                <div class="promo-title">邀请有礼</div>
-                <div class="promo-subtitle">25元寄件券</div>
-                <div class="promo-image invite"></div>
-            </div>
-            <div class="promo-card small">
-                <div class="promo-title">津贴大放送</div>
-                <div class="promo-subtitle">首充50送50</div>
-                <div class="promo-image bonus"></div>
+            <div
+                v-for="(card, index) in promoCards"
+                :key="card.id"
+                :class="['promo-card', index === 0 ? 'large' : 'small']"
+                :style="{ backgroundColor: card.backgroundColor, color: card.textColor }"
+            >
+                <div class="promo-title">{{ card.title }}</div>
+                <div class="promo-subtitle">{{ card.subtitle }}</div>
+                <button v-if="index === 0" class="promo-button">{{ card.buttonText }}</button>
+                <div class="promo-image" :style="{ backgroundImage: `url(${card.image})` }"></div>
             </div>
         </div>
 
         <!-- 快件信息 -->
-        <div class="package-info">
+        <div v-if="packageInfo" class="package-info">
             <div class="info-header">快件信息</div>
             <div class="tracking-number">
                 运单号：{{ packageInfo.trackingNumber }}
@@ -202,6 +267,15 @@ const searchQuery = ref("");
                     <div class="city">{{ packageInfo.to.city }}</div>
                     <div class="name">{{ packageInfo.to.name }}</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- 无快件信息时的占位 -->
+        <div v-else class="package-info">
+            <div class="info-header">快件信息</div>
+            <div class="no-package">
+                <p>暂无快件信息</p>
+                <p>请先寄件或查询快递</p>
             </div>
         </div>
 
@@ -290,6 +364,14 @@ const searchQuery = ref("");
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
 .user-tag {
@@ -519,6 +601,9 @@ const searchQuery = ref("");
     right: 0;
     width: 80px;
     height: 80px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .promo-image.fruit {
@@ -608,6 +693,17 @@ const searchQuery = ref("");
     padding: 2px 10px;
     border-radius: 10px;
     font-size: 12px;
+}
+
+.no-package {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+}
+
+.no-package p {
+    margin: 5px 0;
+    font-size: 14px;
 }
 
 /* 底部导航 */

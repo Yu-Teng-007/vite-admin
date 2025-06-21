@@ -40,6 +40,15 @@ const routes: RouteRecordRaw[] = [
         },
     },
     {
+        path: "/mock-test",
+        name: "MockTest",
+        component: () => import("@/views/MockTest.vue"),
+        meta: {
+            title: "Mock数据测试",
+            requiresAuth: false,
+        },
+    },
+    {
         path: "/:pathMatch(.*)*",
         name: "NotFound",
         component: () => import("@/views/NotFound.vue"),

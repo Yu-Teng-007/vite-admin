@@ -5,8 +5,8 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 
-const username = ref("");
-const password = ref("");
+const username = ref("admin");
+const password = ref("123456");
 const loading = ref(false);
 const isAgree = ref(false);
 const loginType = ref("phone"); // 'phone', 'wechat', 'qq', 'apple'
