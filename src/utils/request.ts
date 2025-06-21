@@ -1,15 +1,16 @@
 import axios from "axios";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import { useUserStore } from "@/store/user";
+import { API_CONFIG } from "@/config/api";
 
 // 创建 axios 实例
 const service = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
-    timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
+    baseURL: API_CONFIG.baseURL,
+    timeout: API_CONFIG.timeout,
 });
 
 // 是否显示请求日志
-const showRequestLog = import.meta.env.VITE_CONSOLE_REQUEST_LOG === true;
+const showRequestLog = API_CONFIG.showRequestLog;
 
 // 请求拦截器
 service.interceptors.request.use(
@@ -52,24 +53,29 @@ service.interceptors.response.use(
             });
         }
 
-        // 这里可以根据实际接口返回格式进行处理
-        // 假设接口返回格式为 { code: number, data: any, message: string }
-        if (res.code && res.code !== 200) {
-            // 处理业务错误
-            console.error("接口返回错误:", res.message || "未知错误");
+        // 处理后端统一响应格式 { code: number, message: string, data: any }
+        if (res.code !== undefined) {
+            // 后端返回的统一格式
+            if (res.code !== 200) {
+                // 处理业务错误
+                console.error("接口返回错误:", res.message || "未知错误");
 
-            // 处理 token 过期等情况
-            if (res.code === 401) {
-                // token 过期，清除用户信息并跳转到登录页
-                const userStore = useUserStore();
-                userStore.logout();
-                window.location.href = "/login";
+                // 处理 token 过期等情况
+                if (res.code === 401) {
+                    // token 过期，清除用户信息并跳转到登录页
+                    const userStore = useUserStore();
+                    userStore.logout();
+                    window.location.href = "/login";
+                }
+
+                return Promise.reject(new Error(res.message || "未知错误"));
+            } else {
+                // 正常返回数据
+                return res.data !== undefined ? res.data : res;
             }
-
-            return Promise.reject(new Error(res.message || "未知错误"));
         } else {
-            // 正常返回数据
-            return res.data !== undefined ? res.data : res;
+            // 非统一格式的响应（可能是 Mock 数据或其他格式）
+            return res;
         }
     },
     (error) => {

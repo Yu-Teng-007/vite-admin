@@ -175,7 +175,7 @@ const getExpressCompanies = () => {
 
 export default {
     "post|/api/express/query": getExpressInfo,
-    "get|/api/express/list": getExpressList,
+    "post|/api/express/list": getExpressList, // 修正：与后端保持一致，使用 POST
     "post|/api/express/create": createExpressOrder,
     "post|/api/express/fee": getShippingFee,
     "get|/api/express/companies": getExpressCompanies,

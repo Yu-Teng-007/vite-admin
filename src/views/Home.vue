@@ -147,11 +147,12 @@ onMounted(async () => {
                 </div>
                 <div class="action-text">会员中心</div>
             </div>
-            <div class="action-item">
+            <div class="action-item" @click="$router.push('/api-test')">
                 <div class="action-icon">
-                    <i class="icon-coupon"></i>
+                    <i class="icon-test"></i>
                 </div>
-                <div class="action-text">优惠券</div>
+                <div class="action-text">API测试</div>
+                <div class="action-badge">DEV</div>
             </div>
         </div>
 
@@ -858,5 +859,9 @@ onMounted(async () => {
 
 .icon-wifi:before {
     content: "📶";
+}
+
+.icon-test:before {
+    content: "🧪";
 }
 </style>

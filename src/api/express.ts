@@ -58,6 +58,7 @@ export interface ShippingFee {
 // 查询快递信息参数
 export interface QueryExpressParams {
     trackingNumber: string;
+    companyCode?: string;
 }
 
 // 创建寄件订单参数
@@ -92,11 +93,11 @@ export function queryExpress(params: QueryExpressParams) {
 }
 
 // 获取快递列表
-export function getExpressList() {
-    return get<{
+export function getExpressList(params: any = {}) {
+    return post<{
         total: number;
         list: ExpressInfo[];
-    }>("/express/list");
+    }>("/express/list", params);
 }
 
 // 创建寄件订单

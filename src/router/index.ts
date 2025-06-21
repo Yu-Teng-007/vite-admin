@@ -49,6 +49,15 @@ const routes: RouteRecordRaw[] = [
         },
     },
     {
+        path: "/api-test",
+        name: "ApiTest",
+        component: () => import("@/views/ApiTest.vue"),
+        meta: {
+            title: "前后端连接测试",
+            requiresAuth: false,
+        },
+    },
+    {
         path: "/:pathMatch(.*)*",
         name: "NotFound",
         component: () => import("@/views/NotFound.vue"),
@@ -65,7 +74,7 @@ const router = createRouter({
 });
 
 // 白名单路径，不需要登录就可以访问
-const whiteList = ["/login", "/register", "/forgot-password"];
+const whiteList = ["/login", "/register", "/forgot-password", "/mock-test", "/api-test"];
 
 // 全局前置守卫
 router.beforeEach(async (to, _from, next) => {

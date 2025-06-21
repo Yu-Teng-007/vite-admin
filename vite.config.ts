@@ -20,4 +20,24 @@ export default defineConfig({
             "@": path.resolve(__dirname, "src"),
         },
     },
+    server: {
+        port: 5173,
+        host: true,
+        proxy: {
+            // 代理 API 请求到后端服务，排除前端路由
+            "/api": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+                secure: false,
+                bypass(req, res, options) {
+                    // 如果是前端路由（如 /api-test），则不代理
+                    if (req.url?.startsWith("/api-test") || req.url?.startsWith("/api-")) {
+                        return req.url;
+                    }
+                },
+                // 可选：重写路径，如果后端没有 /api 前缀则取消注释下面这行
+                // rewrite: (path) => path.replace(/^\/api/, ""),
+            },
+        },
+    },
 });
